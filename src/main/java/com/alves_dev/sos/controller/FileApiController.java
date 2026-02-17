@@ -22,7 +22,6 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -119,18 +118,18 @@ public class FileApiController {
                 : MediaType.APPLICATION_OCTET_STREAM_VALUE;
 
         // Build and save metadata
-        FileMetadata fileMetadata = new FileMetadata();
-        fileMetadata.setFileId(fileId);
-        fileMetadata.setBucket(bucket);
-        fileMetadata.setOriginalFileName(file.getOriginalFilename());
-        fileMetadata.setStoredFileName(storedFileName);
-        fileMetadata.setFilePath(filePath);
-        fileMetadata.setMimeType(mimeType);
-        fileMetadata.setFileSize(file.getSize());
-        fileMetadata.setIsPublic(isPublic);
-        fileMetadata.setAccessKey(accessKey);
-        fileMetadata.setUploadedAt(Instant.now());
-        fileMetadata.setMetadata(metadata);
+        FileMetadata fileMetadata = new FileMetadata(
+                fileId,
+                bucket,
+                file.getOriginalFilename(),
+                storedFileName,
+                filePath,
+                mimeType,
+                file.getSize(),
+                isPublic,
+                accessKey,
+                metadata
+        );
 
         fileMetadataService.save(fileMetadata);
 

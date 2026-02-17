@@ -46,5 +46,5 @@ curl -X POST http://localhost:8080/api/files/upload \
 curl "http://localhost:8080/files/def456" --output downloaded.jpg
 
 # 5. Deletar arquivo (requer API Key)
-curl -X DELETE http://localhost:8080/api/files/68a21614800a4a8b8115afe280e066dd \
+curl -X DELETE http://localhost:8080/api/files/2d652bf64be94d338ca1c65a26a87573 \
   -H "X-API-Key: key1"
