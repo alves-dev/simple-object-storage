@@ -73,6 +73,6 @@ public class FileStorageService {
     }
 
     private Path getBucketPath(String bucket) {
-        return Paths.get(storageConfig.getRootPath(), bucket);
+        return Paths.get(storageConfig.rootPath(), bucket);
     }
 }

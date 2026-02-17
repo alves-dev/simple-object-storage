@@ -19,7 +19,7 @@ public class ApiKeyValidator {
         if (!StringUtils.hasText(apiKey)) {
             return false;
         }
-        List<String> validKeys = serverConfig.getApiKeys();
+        List<String> validKeys = serverConfig.apiKeys();
         return validKeys != null && validKeys.contains(apiKey);
     }
 }
