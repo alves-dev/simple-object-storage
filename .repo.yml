@@ -2,7 +2,7 @@ schema: v1
 
 repository:
   title: SOS - Simple Object Storage
-  description: Simple Object Storage
+  description: Serviço simples de armazenamento e disponibilização de arquivos com suporte a acesso público e privado, organização por buckets e persistência de metadados em MongoDB.
   license: NO-LICENSE
   type: code
   topics:
