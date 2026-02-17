@@ -1,0 +1,24 @@
+schema: v1
+
+repository:
+  title: SOS - Simple Object Storage
+  description: Simple Object Storage
+  license: NO-LICENSE
+  type: code
+  topics:
+    - java
+    - spring
+    - mongodb
+  website: https://github.com/alves-dev/simple-object-storage
+
+project:
+  status: development
+  stack:
+    language: java
+    framework: spring
+    database: mongodb
+    protocols:
+      - http
+    tools:
+      - docker
+      - gradle
