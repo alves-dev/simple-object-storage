@@ -9,7 +9,7 @@ template_version=v1
 
 <p align="center">
   <span style="color:#94A3B8; font-size:16px;">
-    Simple Object Storage
+    Serviço simples de armazenamento e disponibilização de arquivos com suporte a acesso público e privado, organização por buckets e persistência de metadados em MongoDB.
   </span>
 </p>
 
@@ -89,6 +89,6 @@ template_version=v1
 
 <p align="center">
   <sub style="color:#94A3B8;">
-    Atualizado em 2026-02-17 06:51
+    Atualizado em 2026-02-17 08:41
   </sub>
 </p>
