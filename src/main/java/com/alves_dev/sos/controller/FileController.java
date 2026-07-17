@@ -4,6 +4,11 @@ import com.alves_dev.sos.model.FileMetadata;
 import com.alves_dev.sos.model.dto.ApiResponse;
 import com.alves_dev.sos.service.FileMetadataService;
 import com.alves_dev.sos.service.FileStorageService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -14,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/files")
+@Tag(name = "File content", description = "File content delivery operations")
 public class FileController {
 
     private final FileStorageService fileStorageService;
@@ -26,8 +32,16 @@ public class FileController {
     }
 
     @GetMapping("/{fileId}")
+    @Operation(summary = "Download a file", description = "Streams a file inline. Private files require the key query parameter.")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "File content returned"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Access key required or invalid"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "File not found")
+    })
     public ResponseEntity<?> serveFile(
+            @Parameter(description = "Public file identifier", required = true, example = "a1b2c3d4")
             @PathVariable String fileId,
+            @Parameter(description = "Access key for private files", in = ParameterIn.QUERY)
             @RequestParam(value = "key", required = false) String key) {
 
         FileMetadata metadata = fileMetadataService.findByFileIdOrThrow(fileId);

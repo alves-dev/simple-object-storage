@@ -31,6 +31,9 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/files/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/files/*/info").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/files/bucket/**").permitAll()
+                        // OpenAPI documentation
+                        .requestMatchers("/v3/api-docs/**", "/v3/api-docs.yaml",
+                                "/swagger-ui/**", "/swagger-ui.html").permitAll()
                         // Protected endpoints — API Key validated by filter
                         .requestMatchers(HttpMethod.POST, "/api/files/upload").permitAll()
                         .requestMatchers(HttpMethod.DELETE, "/api/files/**").permitAll()

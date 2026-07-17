@@ -13,6 +13,12 @@ import com.alves_dev.sos.util.AccessKeyGenerator;
 import com.alves_dev.sos.util.FileNameGenerator;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
@@ -29,6 +35,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/files")
+@Tag(name = "Files", description = "File upload, metadata, listing and deletion operations")
 public class FileApiController {
 
     private final FileStorageService fileStorageService;
@@ -56,11 +63,24 @@ public class FileApiController {
     }
 
     @PostMapping("/upload")
+    @Operation(summary = "Upload a file", description = "Uploads a public or private file to a bucket.",
+            security = @SecurityRequirement(name = "apiKey"))
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "File uploaded successfully"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Invalid upload data"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "Missing or invalid API key")
+    })
     public ResponseEntity<ApiResponse<UploadResponse>> upload(
+            @Parameter(description = "File to upload", required = true)
             @RequestParam("file") MultipartFile file,
+            @Parameter(description = "Bucket name: letters, numbers, hyphens and underscores; maximum 50 characters",
+                    required = true, example = "documents")
             @RequestParam("bucket") String bucket,
+            @Parameter(description = "Optional filename override", example = "report.pdf")
             @RequestParam(value = "filename", required = false) String customFilename,
+            @Parameter(description = "Whether the file can be accessed without an access key")
             @RequestParam(value = "isPublic", defaultValue = "true") Boolean isPublic,
+            @Parameter(description = "Optional JSON object with custom metadata", example = "{\"owner\":\"team-a\"}")
             @RequestParam(value = "metadata", required = false) String metadataJson) {
 
         // Validate bucket name
@@ -155,8 +175,16 @@ public class FileApiController {
     }
 
     @GetMapping("/{fileId}/info")
+    @Operation(summary = "Get file information", description = "Returns metadata for a file. Private files require the key query parameter.")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "File information returned"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Access key required or invalid"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "File not found")
+    })
     public ResponseEntity<ApiResponse<FileInfoResponse>> getFileInfo(
+            @Parameter(description = "Public file identifier", required = true, example = "a1b2c3d4")
             @PathVariable String fileId,
+            @Parameter(description = "Access key for private files", in = ParameterIn.QUERY)
             @RequestParam(value = "key", required = false) String key) {
 
         FileMetadata metadata = fileMetadataService.findByFileIdOrThrow(fileId);
@@ -183,8 +211,18 @@ public class FileApiController {
     }
 
     @DeleteMapping("/{fileId}")
+    @Operation(summary = "Delete a file", description = "Deletes the file from storage and its metadata.",
+            security = @SecurityRequirement(name = "apiKey"))
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "File deleted successfully"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "Missing or invalid API key"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Access key required or invalid"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "File not found")
+    })
     public ResponseEntity<ApiResponse<String>> deleteFile(
+            @Parameter(description = "Public file identifier", required = true, example = "a1b2c3d4")
             @PathVariable String fileId,
+            @Parameter(description = "Access key for private files", in = ParameterIn.HEADER)
             @RequestHeader(value = "X-Access-Key", required = false) String accessKey) {
 
         FileMetadata metadata = fileMetadataService.findByFileIdOrThrow(fileId);
@@ -205,9 +243,17 @@ public class FileApiController {
     }
 
     @GetMapping("/bucket/{bucketName}")
+    @Operation(summary = "List files in a bucket", description = "Returns a paginated list of files belonging to the bucket.")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Bucket files returned"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Invalid pagination parameters")
+    })
     public ResponseEntity<ApiResponse<BucketListResponse>> listBucket(
+            @Parameter(description = "Bucket name", required = true, example = "documents")
             @PathVariable String bucketName,
+            @Parameter(description = "Zero-based page number", example = "0")
             @RequestParam(value = "page", defaultValue = "0") int page,
+            @Parameter(description = "Number of files per page", example = "20")
             @RequestParam(value = "size", defaultValue = "20") int size) {
 
         Page<FileMetadata> resultPage = fileMetadataService.findByBucket(

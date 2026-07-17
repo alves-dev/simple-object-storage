@@ -30,6 +30,25 @@ template_version=v1
 
 <hr/>
 
+## 📚 API documentation
+
+With the application running, the interactive Swagger UI is available at:
+
+```text
+http://localhost:8088/swagger-ui/index.html
+```
+
+The generated OpenAPI contract is available in JSON and YAML formats:
+
+```text
+http://localhost:8088/v3/api-docs
+http://localhost:8088/v3/api-docs.yaml
+```
+
+The Swagger UI documents the `X-API-Key` header used by upload and delete operations, and the `X-Access-Key` header used when deleting private files.
+
+<hr/>
+
 
 
 <!--
