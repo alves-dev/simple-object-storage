@@ -11,7 +11,7 @@ spring:
       max-request-size: 55MB
 
 server:
-  port: 8080
+  port: 8088
   base-url: ${SERVER_BASE_URL}
   api-keys: ${SERVER_API_KEYS}
 
