@@ -14,3 +14,8 @@ out/
 !**/src/test/**/out/
 
 .env
+
+# Test coverage reports
+coverage/
+coverage.xml
+*.opencover.xml
