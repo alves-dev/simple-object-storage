@@ -1,6 +1,6 @@
 package com.alves_dev.sos.security;
 
-import com.alves_dev.sos.model.dto.ApiResponse;
+import com.alves_dev.sos.model.dto.ApiResponseDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -50,7 +50,7 @@ public class ApiKeyAuthFilter extends OncePerRequestFilter {
             response.setStatus(HttpStatus.UNAUTHORIZED.value());
             response.setContentType(MediaType.APPLICATION_JSON_VALUE);
 
-            ApiResponse<?> errorResponse = ApiResponse.error("UNAUTHORIZED", "Valid API Key is required");
+            ApiResponseDto<?> errorResponse = ApiResponseDto.error("UNAUTHORIZED", "Valid API Key is required");
             objectMapper.writeValue(response.getWriter(), errorResponse);
             return;
         }

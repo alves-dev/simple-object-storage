@@ -3,7 +3,7 @@ package com.alves_dev.sos.controller;
 import com.alves_dev.sos.config.ServerConfig;
 import com.alves_dev.sos.config.StorageConfig;
 import com.alves_dev.sos.model.FileMetadata;
-import com.alves_dev.sos.model.dto.ApiResponse;
+import com.alves_dev.sos.model.dto.ApiResponseDto;
 import com.alves_dev.sos.model.dto.BucketListResponse;
 import com.alves_dev.sos.model.dto.FileInfoResponse;
 import com.alves_dev.sos.model.dto.UploadResponse;
@@ -16,6 +16,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -66,11 +67,11 @@ public class FileApiController {
     @Operation(summary = "Upload a file", description = "Uploads a public or private file to a bucket.",
             security = @SecurityRequirement(name = "apiKey"))
     @ApiResponses({
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "File uploaded successfully"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Invalid upload data"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "Missing or invalid API key")
+            @ApiResponse(responseCode = "201", description = "File uploaded successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid upload data"),
+            @ApiResponse(responseCode = "401", description = "Missing or invalid API key")
     })
-    public ResponseEntity<ApiResponse<UploadResponse>> upload(
+    public ResponseEntity<ApiResponseDto<UploadResponse>> upload(
             @Parameter(description = "File to upload", required = true)
             @RequestParam("file") MultipartFile file,
             @Parameter(description = "Bucket name: letters, numbers, hyphens and underscores; maximum 50 characters",
@@ -88,7 +89,7 @@ public class FileApiController {
                 || bucket.length() > storageConfig.maxBucketNameLength()
                 || !bucket.matches(storageConfig.allowedBucketsRegex())) {
             return ResponseEntity.badRequest().body(
-                    ApiResponse.error("INVALID_BUCKET",
+                    ApiResponseDto.error("INVALID_BUCKET",
                             "Bucket name must contain only alphanumeric characters, hyphens and underscores"));
         }
 
@@ -99,14 +100,14 @@ public class FileApiController {
 
         if (!StringUtils.hasText(originalFilename)) {
             return ResponseEntity.badRequest().body(
-                    ApiResponse.error("INVALID_FILENAME", "Could not determine a valid filename"));
+                    ApiResponseDto.error("INVALID_FILENAME", "Could not determine a valid filename"));
         }
 
         // Validate custom filename if provided
         if (StringUtils.hasText(customFilename)
                 && !customFilename.matches(storageConfig.allowedFilenameRegex())) {
             return ResponseEntity.badRequest().body(
-                    ApiResponse.error("INVALID_FILENAME",
+                    ApiResponseDto.error("INVALID_FILENAME",
                             "Filename must contain only alphanumeric characters, dots, hyphens and underscores"));
         }
 
@@ -118,7 +119,7 @@ public class FileApiController {
                 });
             } catch (Exception e) {
                 return ResponseEntity.badRequest().body(
-                        ApiResponse.error("INVALID_METADATA", "Metadata must be a valid JSON object"));
+                        ApiResponseDto.error("INVALID_METADATA", "Metadata must be a valid JSON object"));
             }
         }
 
@@ -171,17 +172,17 @@ public class FileApiController {
                 fileMetadata.getUploadedAt()
         );
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(response));
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponseDto.success(response));
     }
 
     @GetMapping("/{fileId}/info")
     @Operation(summary = "Get file information", description = "Returns metadata for a file. Private files require the key query parameter.")
     @ApiResponses({
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "File information returned"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Access key required or invalid"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "File not found")
+            @ApiResponse(responseCode = "200", description = "File information returned"),
+            @ApiResponse(responseCode = "403", description = "Access key required or invalid"),
+            @ApiResponse(responseCode = "404", description = "File not found")
     })
-    public ResponseEntity<ApiResponse<FileInfoResponse>> getFileInfo(
+    public ResponseEntity<ApiResponseDto<FileInfoResponse>> getFileInfo(
             @Parameter(description = "Public file identifier", required = true, example = "a1b2c3d4")
             @PathVariable String fileId,
             @Parameter(description = "Access key for private files", in = ParameterIn.QUERY)
@@ -193,7 +194,7 @@ public class FileApiController {
         if (Boolean.FALSE.equals(metadata.getIsPublic())) {
             if (!StringUtils.hasText(key) || !key.equals(metadata.getAccessKey())) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body(
-                        ApiResponse.error("ACCESS_DENIED", "Access key is required for private files"));
+                        ApiResponseDto.error("ACCESS_DENIED", "Access key is required for private files"));
             }
         }
 
@@ -207,19 +208,19 @@ public class FileApiController {
                 metadata.getUploadedAt(),
                 metadata.getMetadata());
 
-        return ResponseEntity.ok(ApiResponse.success(info));
+        return ResponseEntity.ok(ApiResponseDto.success(info));
     }
 
     @DeleteMapping("/{fileId}")
     @Operation(summary = "Delete a file", description = "Deletes the file from storage and its metadata.",
             security = @SecurityRequirement(name = "apiKey"))
     @ApiResponses({
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "File deleted successfully"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "Missing or invalid API key"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Access key required or invalid"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "File not found")
+            @ApiResponse(responseCode = "200", description = "File deleted successfully"),
+            @ApiResponse(responseCode = "401", description = "Missing or invalid API key"),
+            @ApiResponse(responseCode = "403", description = "Access key required or invalid"),
+            @ApiResponse(responseCode = "404", description = "File not found")
     })
-    public ResponseEntity<ApiResponse<String>> deleteFile(
+    public ResponseEntity<ApiResponseDto<String>> deleteFile(
             @Parameter(description = "Public file identifier", required = true, example = "a1b2c3d4")
             @PathVariable String fileId,
             @Parameter(description = "Access key for private files", in = ParameterIn.HEADER)
@@ -231,7 +232,7 @@ public class FileApiController {
         if (Boolean.FALSE.equals(metadata.getIsPublic())) {
             if (!StringUtils.hasText(accessKey) || !accessKey.equals(metadata.getAccessKey())) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body(
-                        ApiResponse.error("ACCESS_DENIED", "Access key is required to delete a private file"));
+                        ApiResponseDto.error("ACCESS_DENIED", "Access key is required to delete a private file"));
             }
         }
 
@@ -239,16 +240,16 @@ public class FileApiController {
         fileStorageService.delete(metadata.getFilePath());
         fileMetadataService.deleteByFileId(fileId);
 
-        return ResponseEntity.ok(ApiResponse.successMessage("File deleted successfully"));
+        return ResponseEntity.ok(ApiResponseDto.successMessage("File deleted successfully"));
     }
 
     @GetMapping("/bucket/{bucketName}")
     @Operation(summary = "List files in a bucket", description = "Returns a paginated list of files belonging to the bucket.")
     @ApiResponses({
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Bucket files returned"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Invalid pagination parameters")
+            @ApiResponse(responseCode = "200", description = "Bucket files returned"),
+            @ApiResponse(responseCode = "400", description = "Invalid pagination parameters")
     })
-    public ResponseEntity<ApiResponse<BucketListResponse>> listBucket(
+    public ResponseEntity<ApiResponseDto<BucketListResponse>> listBucket(
             @Parameter(description = "Bucket name", required = true, example = "documents")
             @PathVariable String bucketName,
             @Parameter(description = "Zero-based page number", example = "0")
@@ -276,6 +277,6 @@ public class FileApiController {
 
         BucketListResponse body = new BucketListResponse(bucketName, files, pagination);
 
-        return ResponseEntity.ok(ApiResponse.success(body));
+        return ResponseEntity.ok(ApiResponseDto.success(body));
     }
 }

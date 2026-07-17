@@ -1,12 +1,13 @@
 package com.alves_dev.sos.controller;
 
 import com.alves_dev.sos.model.FileMetadata;
-import com.alves_dev.sos.model.dto.ApiResponse;
+import com.alves_dev.sos.model.dto.ApiResponseDto;
 import com.alves_dev.sos.service.FileMetadataService;
 import com.alves_dev.sos.service.FileStorageService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.core.io.Resource;
@@ -34,9 +35,9 @@ public class FileController {
     @GetMapping("/{fileId}")
     @Operation(summary = "Download a file", description = "Streams a file inline. Private files require the key query parameter.")
     @ApiResponses({
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "File content returned"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Access key required or invalid"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "File not found")
+            @ApiResponse(responseCode = "200", description = "File content returned"),
+            @ApiResponse(responseCode = "403", description = "Access key required or invalid"),
+            @ApiResponse(responseCode = "404", description = "File not found")
     })
     public ResponseEntity<?> serveFile(
             @Parameter(description = "Public file identifier", required = true, example = "a1b2c3d4")
@@ -50,11 +51,11 @@ public class FileController {
         if (Boolean.FALSE.equals(metadata.getIsPublic())) {
             if (!StringUtils.hasText(key)) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body(
-                        ApiResponse.error("ACCESS_DENIED", "Access key is required for private files"));
+                        ApiResponseDto.error("ACCESS_DENIED", "Access key is required for private files"));
             }
             if (!key.equals(metadata.getAccessKey())) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body(
-                        ApiResponse.error("ACCESS_DENIED", "Invalid access key"));
+                        ApiResponseDto.error("ACCESS_DENIED", "Invalid access key"));
             }
         }
 
