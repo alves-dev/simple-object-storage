@@ -1,10 +1,10 @@
-FROM amazoncorretto:25
+FROM amazoncorretto:21
 
 COPY build/libs/application.jar /app/application.jar
 
 # Set the timezone to São Paulo
 RUN ln -snf /usr/share/zoneinfo/America/Sao_Paulo /etc/localtime && echo America/Sao_Paulo > /etc/timezone
 
-EXPOSE 8080
+EXPOSE 8088
 
-CMD java -jar app/application.jar
+CMD java -jar /app/application.jar

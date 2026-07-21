@@ -12,10 +12,18 @@ import java.util.Optional;
 public interface FileMetadataRepository extends MongoRepository<FileMetadata, String> {
 
     Optional<FileMetadata> findByFileId(String fileId);
+    Optional<FileMetadata> findByBucketAndFileId(String bucket, String fileId);
+    Optional<FileMetadata> findByBucketAndNormalizedFilenameAndFriendlyUrlEnabledTrue(
+            String bucket, String normalizedFilename);
+    Optional<FileMetadata> findByBucketAndNormalizedFilename(String bucket, String normalizedFilename);
+    Optional<FileMetadata> findByBucketAndStoredFileName(String bucket, String storedFileName);
 
     boolean existsByFileId(String fileId);
 
     Page<FileMetadata> findByBucket(String bucket, Pageable pageable);
+    Page<FileMetadata> findByBucketOrderByUploadedAtDesc(String bucket, Pageable pageable);
+
+    long countByBucket(String bucket);
 
     void deleteByFileId(String fileId);
 }

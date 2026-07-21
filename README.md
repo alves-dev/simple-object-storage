@@ -45,7 +45,69 @@ http://localhost:8088/v3/api-docs
 http://localhost:8088/v3/api-docs.yaml
 ```
 
-The Swagger UI documents the `X-API-Key` header used by upload and delete operations, and the `X-Access-Key` header used when deleting private files.
+The Swagger UI documents the `X-API-Key` header used by V2 JSON operations and the
+`key` query parameter accepted by private content URLs.
+
+<hr/>
+
+## API V2
+
+All JSON endpoints under `/api/v2/**` require a client API key in `X-API-Key`.
+API keys are stored only as SHA-256 hashes. Create the first administrative client with:
+
+```bash
+./gradlew bootRun --args='create-client developer-admin "Developer Admin" --admin'
+```
+
+The key is displayed once. Do not add it to source control or logs.
+
+Main endpoints:
+
+```text
+POST   /api/v2/files
+GET    /api/v2/files/{fileId}/info
+DELETE /api/v2/files/{fileId}
+POST   /api/v2/files/{fileId}/temporary-url
+
+GET    /api/v2/buckets
+GET    /api/v2/buckets/{bucketName}
+DELETE /api/v2/buckets/{bucketName}
+GET    /api/v2/buckets/{bucketName}/files
+GET    /api/v2/buckets/{bucketName}/random-image
+```
+
+Content remains available without client authentication at:
+
+```text
+GET|HEAD /files/{fileId}
+GET|HEAD /files/{bucketName}/{fileId}
+GET|HEAD /files/{bucketName}/{filename}
+```
+
+Private content requires a permanent `?key=...` or a signed temporary `?token=...`.
+Responses support `ETag`, `If-None-Match`, `HEAD`, and appropriate public/private cache headers.
+
+The former `/api/files/**` JSON endpoints return `410 Gone`. The historical
+`/files/{fileId}` content URL remains supported.
+
+## V2 migration
+
+Back up MongoDB and the storage directory before running the real migration:
+
+```bash
+./gradlew bootRun --args='migrate-v2 --dry-run'
+./gradlew bootRun --args='migrate-v2'
+```
+
+The migration preserves file IDs, access keys, physical names, and historical URLs. It can be
+executed repeatedly; filename conflicts are resolved using a deterministic file-ID prefix.
+
+Valkey is optional. When unavailable, content is served directly from the filesystem. Storage
+integrity checks run on the configured schedule and only report orphan files; they never delete
+stored content automatically.
+
+Required environment variables and optional cache/integrity settings are documented in
+`.env.example`.
 
 <hr/>
 

@@ -13,7 +13,6 @@ spring:
 server:
   port: 8088
   base-url: ${SERVER_BASE_URL}
-  api-keys: ${SERVER_API_KEYS}
 
 storage:
   root-path: ${STORAGE_ROOT_PATH}
@@ -21,3 +20,29 @@ storage:
   allowed-buckets-regex: "^[a-zA-Z0-9_-]+$"
   allowed-filename-regex: "^[a-zA-Z0-9._-]+$"
   max-bucket-name-length: 50
+
+temporary-url:
+  signing-secret: ${TEMPORARY_URL_SIGNING_SECRET}
+  min-duration: 5m
+  max-duration: 30d
+
+content-cache:
+  enabled: ${CACHE_ENABLED:false}
+  host: ${CACHE_HOST:localhost}
+  port: ${CACHE_PORT:6379}
+  max-file-size: 5MB
+  ttl: 6h
+  timeout: 200ms
+
+file-access:
+  flush-interval: 1m
+  recent-window-days: 30
+
+storage-integrity:
+  enabled: ${STORAGE_INTEGRITY_ENABLED:true}
+  cron: 0 0 3 * * *
+  zone: America/Sao_Paulo
+  batch-size: 100
+  recheck-days: 10
+  workers: 4
+  max-items-per-run: 5000

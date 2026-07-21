@@ -26,7 +26,7 @@ public class FileMetadataService {
     }
 
     public Page<FileMetadata> findByBucket(String bucket, Pageable pageable) {
-        return repository.findByBucket(bucket, pageable);
+        return repository.findByBucketOrderByUploadedAtDesc(bucket, pageable);
     }
 
     public void deleteByFileId(String fileId) {
