@@ -32,7 +32,13 @@ template_version=v1
 
 ## 📚 API documentation
 
-With the application running, the interactive Swagger UI is available at:
+The OpenAPI documentation is disabled by default and is available only with the `dev` profile:
+
+```bash
+SPRING_PROFILES_ACTIVE=dev ./gradlew bootRun
+```
+
+With the application running in that profile, the interactive Swagger UI is available at:
 
 ```text
 http://localhost:8088/swagger-ui/index.html
