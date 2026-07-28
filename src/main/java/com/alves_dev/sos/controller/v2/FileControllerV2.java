@@ -16,6 +16,9 @@ import com.alves_dev.sos.service.FileV2Service;
 import com.alves_dev.sos.service.TemporaryUrlService;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -35,6 +38,8 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v2/files")
+@Tag(name = "Protected files", description = "File management endpoints protected by X-API-Key.")
+@SecurityRequirement(name = "apiKey")
 public class FileControllerV2 {
 
     private static final Logger log = LoggerFactory.getLogger(FileControllerV2.class);
@@ -62,6 +67,7 @@ public class FileControllerV2 {
         this.temporaryUrlService = temporaryUrlService;
     }
 
+    @Operation(summary = "Create a temporary URL for a file")
     @PostMapping("/{fileId}/temporary-url")
     public ApiResponseDto<TemporaryUrlResponse> temporaryUrl(
             @PathVariable String fileId, @RequestBody TemporaryUrlRequest request) {
@@ -74,6 +80,7 @@ public class FileControllerV2 {
         return ApiResponseDto.success(new TemporaryUrlResponse(temporary.url(), temporary.expiresAt()));
     }
 
+    @Operation(summary = "Upload a file")
     @PostMapping
     public ResponseEntity<ApiResponseDto<FileResponse>> upload(
             @RequestParam MultipartFile file,
@@ -90,6 +97,7 @@ public class FileControllerV2 {
                 .body(ApiResponseDto.success(result.response()));
     }
 
+    @Operation(summary = "Get file information")
     @GetMapping("/{fileId}/info")
     public ApiResponseDto<FileResponse> info(@PathVariable String fileId) {
         var file = metadataService.findByFileIdOrThrow(fileId);
@@ -100,6 +108,7 @@ public class FileControllerV2 {
         return ApiResponseDto.success(fileV2Service.toResponse(file, client.admin() ? file.getAccessKey() : null));
     }
 
+    @Operation(summary = "Delete a file")
     @DeleteMapping("/{fileId}")
     public ApiResponseDto<Void> delete(@PathVariable String fileId) {
         var file = metadataService.findByFileIdOrThrow(fileId);

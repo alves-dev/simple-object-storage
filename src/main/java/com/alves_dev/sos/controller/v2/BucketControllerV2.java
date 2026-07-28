@@ -11,6 +11,8 @@ import com.alves_dev.sos.service.FileV2Service;
 import com.alves_dev.sos.service.RandomImageService;
 import com.alves_dev.sos.security.ClientContext;
 import com.alves_dev.sos.service.BucketService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.CacheControl;
@@ -40,6 +42,11 @@ public class BucketControllerV2 {
         this.randomImageService = randomImageService;
     }
 
+    @Operation(
+            summary = "Get a random public image from a bucket",
+            description = "Public endpoint. Only public available image files are eligible.",
+            tags = {"Public content"}
+    )
     @GetMapping("/{bucketName}/random-image")
     public ResponseEntity<byte[]> randomImage(@PathVariable String bucketName) {
         Bucket bucket = bucketService.findOrThrow(bucketName);
@@ -52,6 +59,8 @@ public class BucketControllerV2 {
                 .body(image.bytes());
     }
 
+    @Operation(summary = "List files in a bucket", tags = {"Protected buckets"},
+            security = @SecurityRequirement(name = "apiKey"))
     @GetMapping("/{bucketName}/files")
     public ApiResponseDto<FilePageResponse> files(@PathVariable String bucketName,
                                                    @RequestParam(defaultValue = "0") int page,
@@ -65,6 +74,8 @@ public class BucketControllerV2 {
                 new PageInfo(result.getNumber(), result.getSize(), result.getTotalElements(), result.getTotalPages())));
     }
 
+    @Operation(summary = "List buckets", tags = {"Protected buckets"},
+            security = @SecurityRequirement(name = "apiKey"))
     @GetMapping
     public ApiResponseDto<BucketPageResponse> list(
             @RequestParam(defaultValue = "0") int page,
@@ -77,12 +88,16 @@ public class BucketControllerV2 {
                 new PageInfo(result.getNumber(), result.getSize(), result.getTotalElements(), result.getTotalPages())));
     }
 
+    @Operation(summary = "Get bucket details", tags = {"Protected buckets"},
+            security = @SecurityRequirement(name = "apiKey"))
     @GetMapping("/{bucketName}")
     public ApiResponseDto<BucketResponse> details(@PathVariable String bucketName) {
         Bucket bucket = bucketService.findOrThrow(bucketName);
         return ApiResponseDto.success(toResponse(bucket, bucketService.countFiles(bucket)));
     }
 
+    @Operation(summary = "Delete a bucket", tags = {"Protected buckets"},
+            security = @SecurityRequirement(name = "apiKey"))
     @DeleteMapping("/{bucketName}")
     public ResponseEntity<ApiResponseDto<Void>> delete(@PathVariable String bucketName) {
         bucketService.delete(bucketName, ClientContext.requireCurrentClient());

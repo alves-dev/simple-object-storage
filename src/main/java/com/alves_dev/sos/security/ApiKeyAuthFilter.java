@@ -31,7 +31,12 @@ public class ApiKeyAuthFilter extends OncePerRequestFilter {
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String path = request.getServletPath();
-        return !path.startsWith("/api/v2/");
+        return !path.startsWith("/api/v2/") || isPublicRandomImage(request, path);
+    }
+
+    private boolean isPublicRandomImage(HttpServletRequest request, String path) {
+        return "GET".equals(request.getMethod())
+                && path.matches("^/api/v2/buckets/[^/]+/random-image$");
     }
 
     @Override

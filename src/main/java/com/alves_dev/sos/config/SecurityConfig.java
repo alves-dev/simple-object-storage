@@ -29,15 +29,11 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // Public endpoints
                         .requestMatchers(HttpMethod.GET, "/files/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/files/*/info").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/files/bucket/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v2/buckets/*/random-image").permitAll()
                         // OpenAPI documentation
                         .requestMatchers("/v3/api-docs/**", "/v3/api-docs.yaml",
                                 "/swagger-ui/**", "/swagger-ui.html").permitAll()
                         .requestMatchers("/api/v2/**").authenticated()
-                        // Protected endpoints — API Key validated by filter
-                        .requestMatchers(HttpMethod.POST, "/api/files/upload").permitAll()
-                        .requestMatchers(HttpMethod.DELETE, "/api/files/**").permitAll()
                         .anyRequest().permitAll()
                 )
                 .addFilterBefore(apiKeyAuthFilter, UsernamePasswordAuthenticationFilter.class);

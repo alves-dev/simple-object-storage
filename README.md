@@ -58,7 +58,8 @@ The Swagger UI documents the `X-API-Key` header used by V2 JSON operations and t
 
 ## API V2
 
-All JSON endpoints under `/api/v2/**` require a client API key in `X-API-Key`.
+JSON management endpoints under `/api/v2/**` require a client API key in `X-API-Key`.
+`GET /api/v2/buckets/{bucketName}/random-image` is public and returns only public images.
 API keys are stored only as SHA-256 hashes. Create the first administrative client with:
 
 ```bash
@@ -93,8 +94,8 @@ GET|HEAD /files/{bucketName}/{filename}
 Private content requires a permanent `?key=...` or a signed temporary `?token=...`.
 Responses support `ETag`, `If-None-Match`, `HEAD`, and appropriate public/private cache headers.
 
-The former `/api/files/**` JSON endpoints return `410 Gone`. The historical
-`/files/{fileId}` content URL remains supported.
+The former `/api/files/**` JSON endpoints were removed. The historical
+`/files/{fileId}` content URL remains supported for file delivery.
 
 ## V2 migration
 

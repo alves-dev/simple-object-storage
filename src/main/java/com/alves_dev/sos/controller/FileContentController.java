@@ -7,6 +7,9 @@ import com.alves_dev.sos.service.FileAccessTrackingService;
 import com.alves_dev.sos.service.FileContentCacheService;
 import com.alves_dev.sos.service.FileContentService;
 import com.alves_dev.sos.service.TemporaryUrlService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.CacheControl;
 import org.springframework.http.HttpHeaders;
@@ -26,6 +29,7 @@ import java.util.concurrent.TimeUnit;
 
 @RestController
 @RequestMapping("/files")
+@Tag(name = "Public content", description = "Public file delivery endpoints. Private files require an access key or temporary token.")
 public class FileContentController {
 
     private final FileContentService contentService;
@@ -42,17 +46,29 @@ public class FileContentController {
         this.trackingService = trackingService;
     }
 
+    @Operation(
+            summary = "Serve file content by file ID",
+            description = "Public delivery endpoint. Private files require the key or token query parameter."
+    )
     @RequestMapping(value = "/{fileId}", method = {RequestMethod.GET, RequestMethod.HEAD})
     public ResponseEntity<byte[]> legacy(@PathVariable String fileId,
+                                         @Parameter(description = "Permanent access key for private files")
                                          @RequestParam(required = false) String key,
+                                         @Parameter(description = "Signed temporary access token for private files")
                                          @RequestParam(required = false) String token,
                                          HttpServletRequest request) {
         return serve(contentService.resolveLegacy(fileId), key, token, request);
     }
 
+    @Operation(
+            summary = "Serve file content by bucket and identifier",
+            description = "Public delivery endpoint. The value path variable may be a file ID or friendly filename. Private files require the key or token query parameter."
+    )
     @RequestMapping(value = "/{bucketName}/{value}", method = {RequestMethod.GET, RequestMethod.HEAD})
     public ResponseEntity<byte[]> v2(@PathVariable String bucketName, @PathVariable String value,
+                                     @Parameter(description = "Permanent access key for private files")
                                      @RequestParam(required = false) String key,
+                                     @Parameter(description = "Signed temporary access token for private files")
                                      @RequestParam(required = false) String token,
                                      HttpServletRequest request) {
         return serve(contentService.resolveV2(bucketName, value), key, token, request);
