@@ -66,6 +66,13 @@ API keys are stored only as SHA-256 hashes. Create the first administrative clie
 ./gradlew bootRun --args='create-client developer-admin "Developer Admin" --admin'
 ```
 
+When running the packaged application in a container, execute the command inside the
+container instead. `--server.port=0` prevents a port conflict with the running instance:
+
+```bash
+java -jar /app/application.jar --server.port=0 create-client developer-admin "Developer Admin" --admin
+```
+
 The key is displayed once. Do not add it to source control or logs.
 
 Main endpoints:
