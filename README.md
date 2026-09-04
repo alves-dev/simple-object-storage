@@ -101,6 +101,10 @@ GET|HEAD /files/{bucketName}/{filename}
 Private content requires a permanent `?key=...` or a signed temporary `?token=...`.
 Responses support `ETag`, `If-None-Match`, `HEAD`, and appropriate public/private cache headers.
 
+Browser applications may fetch public content from the origins configured in
+`CORS_ALLOWED_ORIGINS` (a comma-separated list). CORS is intentionally limited to
+`GET` and `HEAD` requests under `/files/**`; it does not grant access to management APIs.
+
 The former `/api/files/**` JSON endpoints were removed. The historical
 `/files/{fileId}` content URL remains supported for file delivery.
 
